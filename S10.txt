@@ -1,0 +1,21 @@
+keyword_extraction.py:
+
+-- 1
+i need you to make me a code file that does the following:
+Keyword Extraction – spaCy + NLTK
+For example:
+Top 5 most frequent words (NLTK)
+
+Relevant nouns (spaCy)
+
+Main verbs
+
+-- 2 
+make the code in spanish and make sure you don't use anything complicated and only the imports i told you 
+to use and make it easy to read and not too long either. also take care of possible errors and comment it 
+where you seem fit
+
+-- 3
+now take care of the errors and make sure to add comments explaining how this code works 
+everywhere you see fit so if someone asks me anything about it no matter what part it is i 
+can explain it easily
