@@ -12,15 +12,29 @@ Requiere:
 - Modelo de spaCy en español: es_core_news_sm
 """
 
-import spacy
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from collections import Counter
+# IMPORTACIONES CON MANEJO DE ERRORES
+try:
+    import spacy  # Librería de procesamiento de lenguaje natural (NLP) para análisis de texto
+except ImportError:
+    print("Error: spacy no está instalado. Ejecuta: pip install spacy")
+    exit()
 
-# ============================================
+try:
+    import nltk  # Natural Language Toolkit: conjunto de herramientas para procesamiento de lenguaje
+    from nltk.corpus import stopwords  # Palabras comunes sin significado (el, la, de, que, etc.)
+    from nltk.tokenize import word_tokenize  # Función para dividir texto en palabras individuales
+except ImportError:
+    print("Error: nltk no está instalado. Ejecuta: pip install nltk")
+    exit()
+
+try:
+    from collections import Counter  # Herramienta para contar frecuencias de elementos en listas
+except ImportError:
+    print("Error: collections no está disponible (módulo estándar de Python)")
+    exit()
+
+
 # DESCARGA DE DATOS NECESARIOS
-# ============================================
 # NLTK necesita descargar recursos para tokenizar texto (punkt_tab)
 # y palabras vacías en español (stopwords)
 try:
@@ -31,12 +45,16 @@ except LookupError:
     nltk.download('punkt_tab')
     nltk.download('stopwords')
 
-# ============================================
+
 # CARGA DEL MODELO DE SPACY EN ESPAÑOL
-# ============================================
 # spaCy necesita un modelo previamente entrenado (es_core_news_sm)
 # Este modelo permite identificar verbos, sustantivos y otras características
 try:
+    # Carga el modelo entrenado 'es_core_news_sm' de spaCy para español
+    # - es: específico para idioma español
+    # - core: modelo completo con todas las características (etiquetado POS, NER, etc.)
+    # - news: entrenado con textos de noticias españolas
+    # - sm: versión pequeña (small), rápida y ligera (~40MB)
     nlp = spacy.load('es_core_news_sm')
 except OSError:
     print("Error: Modelo de spaCy no encontrado.")
@@ -55,25 +73,22 @@ def extraer_palabras_clave(texto):
         dict: Diccionario con tres listas de palabras clave o None si hay error
     """
     
-    # ============================================
+
     # VALIDACIÓN DEL TEXTO DE ENTRADA
-    # ============================================
     # Verificamos que el texto no esté vacío antes de procesarlo
     if not texto or len(texto.strip()) == 0:
         print("Error: El texto está vacío. Por favor proporciona un texto válido.")
         return None
     
     try:
-        # ============================================
+
         # PROCESAMIENTO DEL TEXTO CON SPACY
-        # ============================================
         # spaCy analiza el texto y etiqueta cada palabra con su tipo
         # (sustantivo, verbo, adjetivo, etc.)
         doc = nlp(texto)
         
-        # ============================================
+
         # 1. TOP 5 PALABRAS MÁS FRECUENTES (NLTK)
-        # ============================================
         # Paso 1: Tokenizar el texto (dividir en palabras individuales)
         # .lower() convierte todo a minúsculas para consistencia
         tokens = word_tokenize(texto.lower())
@@ -97,9 +112,8 @@ def extraer_palabras_clave(texto):
         # .most_common(5) retorna las 5 palabras más frecuentes
         top_5_palabras = Counter(tokens_filtrados).most_common(5)
         
-        # ============================================
+
         # 2. SUSTANTIVOS RELEVANTES (SPACY)
-        # ============================================
         # Recorremos cada token procesado por spaCy
         # token.pos_ nos dice la parte del discurso (NOUN, VERB, ADJ, etc.)
         # NOUN = sustantivo (nombres de personas, lugares, cosas)
@@ -108,9 +122,8 @@ def extraer_palabras_clave(texto):
         # Contar frecuencias de sustantivos y obtener los 5 más comunes
         sustantivos_relevantes = Counter(sustantivos).most_common(5)
         
-        # ============================================
+
         # 3. VERBOS PRINCIPALES (SPACY)
-        # ============================================
         # VERB = verbo (acciones, estados)
         # Extraemos todos los verbos del texto
         verbos = [token.text for token in doc if token.pos_ == 'VERB']
@@ -118,9 +131,8 @@ def extraer_palabras_clave(texto):
         # Contar frecuencias de verbos y obtener los 5 más comunes
         verbos_principales = Counter(verbos).most_common(5)
         
-        # ============================================
+
         # RETORNO DE RESULTADOS
-        # ============================================
         # Devolvemos un diccionario con los tres tipos de palabras clave extraídas
         return {
             'top_5_palabras': top_5_palabras,
@@ -147,16 +159,14 @@ def mostrar_resultados(palabras_clave):
         print("Error: No hay resultados para mostrar.")
         return
     
-    # ============================================
+
     # ENCABEZADO DEL RESULTADO
-    # ============================================
     print("\n" + "="*50)
     print("RESULTADOS DE EXTRACCIÓN DE PALABRAS CLAVE")
     print("="*50)
     
-    # ============================================
+
     # MOSTRAR TOP 5 PALABRAS MÁS FRECUENTES
-    # ============================================
     print("\nTOP 5 PALABRAS MÁS FRECUENTES:")
     # Iteramos sobre la lista de palabras con sus frecuencias
     # enumerate(lista, 1) numera desde 1
@@ -164,17 +174,15 @@ def mostrar_resultados(palabras_clave):
     for i, (palabra, freq) in enumerate(palabras_clave['top_5_palabras'], 1):
         print(f"  {i}. {palabra}: {freq} veces")
     
-    # ============================================
+
     # MOSTRAR SUSTANTIVOS RELEVANTES
-    # ============================================
     print("\nSUSTANTIVOS RELEVANTES:")
     # Mismo proceso: mostramos cada sustantivo y su frecuencia
     for i, (sustantivo, freq) in enumerate(palabras_clave['sustantivos'], 1):
         print(f"  {i}. {sustantivo}: {freq} veces")
     
-    # ============================================
+
     # MOSTRAR VERBOS PRINCIPALES
-    # ============================================
     print("\nVERBOS PRINCIPALES:")
     # Mismo proceso: mostramos cada verbo y su frecuencia
     for i, (verbo, freq) in enumerate(palabras_clave['verbos'], 1):
@@ -184,16 +192,9 @@ def mostrar_resultados(palabras_clave):
     print("\n" + "="*50 + "\n")
 
 
-# ============================================
-# PUNTO DE ENTRADA DEL PROGRAMA
-# ============================================
-# Este bloque solo se ejecuta si el archivo se ejecuta directamente
-# (no si se importa como módulo en otro archivo)
 if __name__ == "__main__":
     try:
-        # ============================================
-        # TEXTO DE EJEMPLO
-        # ============================================
+
         # Texto en español sobre procesamiento de lenguaje natural
         texto = """
         El procesamiento del lenguaje natural es un campo fascinante de la inteligencia artificial.
@@ -202,22 +203,17 @@ if __name__ == "__main__":
         Las bibliotecas de Python como spaCy y NLTK proporcionan una excelente funcionalidad.
         """
         
-        # ============================================
         # MOSTRAR TEXTO DE ENTRADA
-        # ============================================
         print("TEXTO DE ENTRADA:")
         print("-" * 50)
         print(texto.strip())
         
-        # ============================================
         # EXTRAER PALABRAS CLAVE
-        # ============================================
         # Llamamos a la función principal que extrae las palabras clave
         resultado = extraer_palabras_clave(texto)
         
-        # ============================================
+
         # MOSTRAR RESULTADOS
-        # ============================================
         # Si la extracción fue exitosa, mostramos los resultados
         # Si hubo error, resultado será None y no mostraremos nada
         if resultado:
