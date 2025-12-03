@@ -1,0 +1,4 @@
+wordChef.py:
+
+--1
+make me a docstring comment for the sessionLogger function and for the extraer_palabras_clave function
